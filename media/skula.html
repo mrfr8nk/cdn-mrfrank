@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skula AI - Your School Assistant</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.imgur.com/JQZ1h3E.png" />
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* School Theme Colors */
+        :root {
+            --primary: #3498db;
+            --primary-light: #5dade2;
+            --primary-dark: #2874a6;
+            --secondary: #2ecc71;
+            --secondary-light: #58d68d;
+            --accent: #f39c12;
+            --accent-dark: #d35400;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --light: #ffffff;
+            --light-gray: #f5f7fa;
+            --dark: #34495e;
+            
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-xxl: 3rem;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+            
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            --radius-full: 9999px;
+        }
+
+        .dark-mode {
+            --primary: #4d94ff;
+            --primary-light: #7ab3ff;
+            --primary-dark: #0052cc;
+            --secondary: #66bb6a;
+            --secondary-light: #81c784;
+            --text: #ecf0f1;
+            --text-light: #bdc3c7;
+            --light: #121a26;
+            --light-gray: #1e293b;
+            --dark: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text);
+            background-color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color var(--transition-slow), color var(--transition-slow);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: var(--light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--light);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            animation: pulse 2s infinite;
+        }
+
+        .chat-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chat-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform var(--transition-normal);
+            padding: var(--space-sm);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-btn:hover {
+            transform: scale(1.1);
+            color: var(--secondary-light);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Theme toggle in header */
+        .theme-toggle-header {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            padding: var(--space-sm);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle-header:hover {
+            transform: scale(1.1);
+            color: var(--secondary-light);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-lg);
+            background-color: var(--light);
+            background-image: linear-gradient(rgba(52, 152, 219, 0.03), rgba(52, 152, 219, 0.03));
+            scroll-behavior: smooth;
+        }
+
+        /* Message Bubbles */
+        .message {
+            max-width: 80%;
+            margin-bottom: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s var(--transition-bounce) forwards;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+        }
+
+        .user-message {
+            background-color: var(--primary);
+            color: var(--light);
+            margin-left: auto;
+            border-bottom-right-radius: var(--radius-sm);
+        }
+
+        .ai-message {
+            background-color: var(--light-gray);
+            color: var(--text);
+            margin-right: auto;
+            border-bottom-left-radius: var(--radius-sm);
+        }
+
+        .message-content {
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: var(--space-xs);
+            text-align: right;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: inline-block;
+            padding: var(--space-md) var(--space-lg);
+            background-color: var(--light-gray);
+            color: var(--text);
+            border-radius: var(--radius-lg);
+            border-bottom-left-radius: var(--radius-sm);
+            margin-bottom: var(--space-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            height: 1rem;
+        }
+
+        .typing-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--text);
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0.4;
+        }
+
+        .typing-dots span:nth-child(1) {
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation: pulse 1.4s infinite ease-in-out 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation: pulse 1.4s infinite ease-in-out 0.4s;
+        }
+
+        /* Input Area */
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: var(--space-md);
+            background-color: var(--light);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            position: relative;
+            gap: var(--space-md);
+        }
+
+        .message-input {
+            flex: 1;
+            padding: var(--space-md) var(--space-lg);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-full);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: all var(--transition-normal);
+            background-color: var(--light-gray);
+            height: 48px;
+        }
+
+        .message-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            padding: 0 var(--space-md);
+        }
+
+        .quick-btn {
+            background-color: var(--light-gray);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-full);
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .quick-btn:hover {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: var(--space-md);
+            background-color: var(--light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all var(--transition-normal);
+            width: 220px;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .dropdown-item {
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            color: var(--text);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: var(--light);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            transition: left var(--transition-normal);
+            overflow-y: auto;
+            padding: var(--space-lg);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .sidebar-section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .sidebar-section-title i {
+            font-size: 0.9rem;
+        }
+
+        .chat-history-item {
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .chat-history-item:hover {
+            color: var(--primary);
+        }
+
+        .chat-history-item .time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Study Tools */
+        .study-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .tool-btn {
+            background-color: var(--light-gray);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .tool-btn:hover {
+            background-color: var(--primary);
+            color: var(--light);
+        }
+
+        /* Welcome Message Styling */
+        .welcome-message {
+            text-align: center;
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--light);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-message::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0) 60%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite linear;
+        }
+
+        .welcome-message h2 {
+            margin-bottom: var(--space-md);
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .welcome-message p {
+            margin-bottom: var(--space-md);
+            position: relative;
+        }
+
+        .welcome-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-md);
+            color: var(--secondary-light);
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .chat-header {
+                padding: var(--space-sm) var(--space-md);
+            }
+            
+            .logo-img {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .chat-title {
+                font-size: 1.1rem;
+            }
+
+            .chat-subtitle {
+                font-size: 0.7rem;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .header-btn, 
+            .theme-toggle-header {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+
+            .input-container {
+                padding: var(--space-sm);
+            }
+
+            .send-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .message-input {
+                height: 44px;
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .sidebar {
+                width: 280px;
+                left: -280px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="logo-container">
+                <img src="https://i.imgur.com/JQZ1h3E.png" alt="Skula AI Logo" class="logo-img">
+                <div>
+                    <h1 class="chat-title">Skula AI</h1>
+                    <p class="chat-subtitle">Your Advanced School Assistant</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle-header" id="theme-toggle-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="header-btn" id="history-btn">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button class="header-btn" id="menu-btn">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+            
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu" id="dropdown-menu">
+                <a href="#" class="dropdown-item" id="clear-chat-btn">
+                    <i class="fas fa-trash-alt"></i> Clear Chat
+                </a>
+                <a href="#" class="dropdown-item" id="study-tools-btn">
+                    <i class="fas fa-book"></i> Study Tools
+                </a>
+                <a href="#" class="dropdown-item" id="research-btn">
+                    <i class="fas fa-search"></i> Deep Research
+                </a>
+                <a href="https://wa.me/263719647303" class="dropdown-item" target="_blank">
+                    <i class="fas fa-headset"></i> Contact Creator
+                </a>
+                <a href="#" class="dropdown-item" id="about-btn">
+                    <i class="fas fa-info-circle"></i> About Skula AI
+                </a>
+            </div>
+        </header>
+        
+        <!-- Chat Area -->
+        <div class="chat-area" id="chat-area">
+            <!-- Welcome Message -->
+            <div class="welcome-message">
+                <div class="welcome-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2>Welcome to Skula AI</h2>
+                <p>Your advanced school assistant created by Darrell Mucheri</p>
+                <p>I can help with research, deep explanations, homework, and more!</p>
+                
+                <!-- Study Tools -->
+                <div class="study-tools">
+                    <button class="tool-btn" id="math-help-btn">
+                        <i class="fas fa-square-root-alt"></i> Math Help
+                    </button>
+                    <button class="tool-btn" id="science-help-btn">
+                        <i class="fas fa-atom"></i> Science Help
+                    </button>
+                    <button class="tool-btn" id="essay-help-btn">
+                        <i class="fas fa-pen-fancy"></i> Essay Writing
+                    </button>
+                    <button class="tool-btn" id="history-help-btn">
+                        <i class="fas fa-landmark"></i> History
+                    </button>
+                    <button class="tool-btn" id="coding-help-btn">
+                        <i class="fas fa-code"></i> Coding Help
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Action Buttons -->
+            <div class="quick-actions" id="quick-actions">
+                <button class="quick-btn" data-prompt="Explain quantum physics simply">Quantum Physics</button>
+                <button class="quick-btn" data-prompt="Help me solve this math problem: 2x + 5 = 15">Math Problem</button>
+                <button class="quick-btn" data-prompt="Write a 500-word essay on climate change">Essay Writer</button>
+                <button class="quick-btn" data-prompt="Explain the French Revolution">History Help</button>
+                <button class="quick-btn" data-prompt="How do I write a Python function?">Python Help</button>
+            </div>
+            
+            <!-- Messages will be inserted here dynamically -->
+        </div>
+        
+        <!-- Input Area -->
+        <div class="input-container">
+            <input type="text" class="message-input" id="message-input" placeholder="Ask me anything about school subjects..." autocomplete="off">
+            <button class="send-btn" id="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sidebar for Chat History -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">Chat History</h3>
+            <button class="close-sidebar" id="close-sidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-section">
+            <h4 class="sidebar-section-title">
+                <i class="fas fa-calendar-day"></i> Today
+            </h4>
+            <div class="chat-history-item">
+                <div>Math problem help</div>
+                <div class="time">10:30 AM</div>
+            </div>
+            <div class="chat-history-item">
+                <div>Science research</div>
+                <div class="time">9:15 AM</div>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h4 class="sidebar-section-title">
+                <i class="fas fa-calendar-week"></i> This Week
+            </h4>
+            <div class="chat-history-item">
+                <div>History essay</div>
+                <div class="time">Yesterday, 4:20 PM</div>
+            </div>
+            <div class="chat-history-item">
+                <div>Python coding help</div>
+                <div class="time">Monday, 7:45 AM</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // DOM Elements
+        const chatArea = document.getElementById('chat-area');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const menuBtn = document.getElementById('menu-btn');
+        const historyBtn = document.getElementById('history-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const clearChatBtn = document.getElementById('clear-chat-btn');
+        const studyToolsBtn = document.getElementById('study-tools-btn');
+        const researchBtn = document.getElementById('research-btn');
+        const aboutBtn = document.getElementById('about-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const overlay = document.getElementById('overlay');
+        const quickActions = document.getElementById('quick-actions');
+        
+        // Study tool buttons
+        const mathHelpBtn = document.getElementById('math-help-btn');
+        const scienceHelpBtn = document.getElementById('science-help-btn');
+        const essayHelpBtn = document.getElementById('essay-help-btn');
+        const historyHelpBtn = document.getElementById('history-help-btn');
+        const codingHelpBtn = document.getElementById('coding-help-btn');
+        
+        // Chat history - using localStorage for persistence
+        let chatHistory = JSON.parse(localStorage.getItem('skula_chat_history')) || [];
+        
+        // Initialize the chat
+        function initChat() {
+            // Set up event listeners
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && messageInput.value.trim() !== '') {
+                    sendMessage();
+                }
+            });
+            
+            sendBtn.addEventListener('click', () => {
+                if (messageInput.value.trim() !== '') {
+                    sendMessage();
+                }
+            });
+            
+            menuBtn.addEventListener('click', toggleDropdown);
+            historyBtn.addEventListener('click', toggleSidebar);
+            closeSidebar.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+            clearChatBtn.addEventListener('click', clearChat);
+            studyToolsBtn.addEventListener('click', showStudyTools);
+            researchBtn.addEventListener('click', showResearchOptions);
+            aboutBtn.addEventListener('click', showAbout);
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            
+            // Study tool buttons
+            mathHelpBtn.addEventListener('click', () => showSubjectHelp('Mathematics'));
+            scienceHelpBtn.addEventListener('click', () => showSubjectHelp('Science'));
+            essayHelpBtn.addEventListener('click', () => showSubjectHelp('Essay Writing'));
+            historyHelpBtn.addEventListener('click', () => showSubjectHelp('History'));
+            codingHelpBtn.addEventListener('click', () => showSubjectHelp('Coding'));
+            
+            // Quick action buttons
+            quickActions.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    messageInput.value = e.target.dataset.prompt;
+                    messageInput.focus();
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdownMenu.contains(e.target) && e.target !== menuBtn) {
+                    dropdownMenu.classList.remove('active');
+                }
+            });
+            
+            // Load chat history if any
+            if (chatHistory.length > 0) {
+                chatHistory.forEach(msg => {
+                    addMessage(msg.role, msg.content, false);
+                });
+                scrollToBottom();
+            }
+            
+            // Check for dark mode preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-mode');
+                themeToggleBtn.querySelector('i').className = 'fas fa-sun';
+            }
+        }
+
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('active');
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Add a message to the chat
+        function addMessage(role, content, saveToHistory = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = formatMessageContent(content);
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = getCurrentTime();
+            
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeDiv);
+            chatArea.appendChild(messageDiv);
+            
+            if (saveToHistory) {
+                chatHistory.push({ role, content, timestamp: new Date().toISOString() });
+                localStorage.setItem('skula_chat_history', JSON.stringify(chatHistory));
+            }
+            
+            scrollToBottom();
+        }
+
+        // Format message content (basic markdown support)
+        function formatMessageContent(content) {
+            // Simple markdown parsing
+            content = content.replace(/`([^`]+)`/g, '<code>$1</code>');
+            content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            content = content.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            content = content.replace(/\n/g, '<br>');
+            
+            return content;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <span>Skula AI is researching...</span>
+                <span class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            `;
+            chatArea.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Get current time in HH:MM format
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Scroll to bottom of chat
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // Send message to AI
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            messageInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                // Enhanced prompt for school assistant
+                const prompt = `You are Skula AI, an advanced school assistant created by Darrell Mucheri. Your purpose is to help students with research, deep explanations, and academic support.
+
+Key features:
+- Version 3.5.1 (August 2025)
+- Specializes in Math, Science, History, Essay Writing, and Coding
+- Provides step-by-step explanations
+- Can generate practice questions
+- Offers research assistance with citations when possible
+
+Response guidelines:
+1. Start with a clear, structured answer
+2. Break down complex topics
+3. Provide examples when helpful
+4. Suggest related topics for deeper learning
+5. Always maintain an educational tone
+
+Current conversation context: ${chatHistory.slice(-3).map(m => m.role + ": " + m.content).join("\n")}
+
+User question: ${message}`;
+
+                const apiUrl = `https://api.bk9.dev/ai/BK93?BK9=${encodeURIComponent(prompt)}&q=${encodeURIComponent(message)}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                // Hide typing indicator and add AI response
+                hideTypingIndicator();
+                
+                if (data.status && data.BK9) {
+                    addMessage('ai', data.BK9);
+                } else {
+                    throw new Error("No response from AI");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                hideTypingIndicator();
+                addMessage('ai', "I'm having trouble accessing the research database. Please try again later.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Failed to connect to the research service. Please check your internet connection.',
+                });
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // Clear chat history
+        function clearChat() {
+            Swal.fire({
+                title: 'Clear Chat History?',
+                text: "This will permanently delete all your conversation history with Skula AI.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, clear it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    chatHistory = [];
+                    localStorage.removeItem('skula_chat_history');
+                    // Clear the chat area except welcome message and quick actions
+                    const messages = document.querySelectorAll('.message');
+                    messages.forEach(msg => msg.remove());
+                    Swal.fire(
+                        'Cleared!',
+                        'Your chat history has been cleared.',
+                        'success'
+                    );
+                }
+                dropdownMenu.classList.remove('active');
+            });
+        }
+
+        // Show study tools
+        function showStudyTools() {
+            addMessage('ai', `Here are some study tools I can help with:\n\n` +
+                `📚 **Math Help** - Algebra, Calculus, Geometry\n` +
+                `🔬 **Science Help** - Physics, Chemistry, Biology\n` +
+                `✍️ **Essay Writing** - Structure, Thesis, Citations\n` +
+                `🏛️ **History** - Events, Timelines, Analysis\n` +
+                `💻 **Coding Help** - Python, JavaScript, HTML/CSS\n\n` +
+                `What subject do you need help with?`);
+            dropdownMenu.classList.remove('active');
+        }
+
+        // Show research options
+        function showResearchOptions() {
+            addMessage('ai', `I can help with deep research on:\n\n` +
+                `🔍 **Scientific Topics** - Latest papers, theories\n` +
+                `📜 **Historical Events** - Primary sources, analysis\n` +
+                `📊 **Data Analysis** - Statistics, trends\n` +
+                `📖 **Literature Review** - Book summaries, themes\n\n` +
+                `What would you like me to research?`);
+            dropdownMenu.classList.remove('active');
+        }
+
+        // Show subject-specific help
+        function showSubjectHelp(subject) {
+            let prompt = "";
+            switch(subject) {
+                case "Mathematics":
+                    prompt = "Explain algebra concepts clearly with examples";
+                    break;
+                case "Science":
+                    prompt = "Break down Newton's Laws of Motion with real-world applications";
+                    break;
+                case "Essay Writing":
+                    prompt = "How to structure a 5-paragraph essay with a strong thesis";
+                    break;
+                case "History":
+                    prompt = "Explain the causes and effects of World War II";
+                    break;
+                case "Coding":
+                    prompt = "How to write clean Python functions with examples";
+                    break;
+            }
+            messageInput.value = prompt;
+            messageInput.focus();
+        }
+
+        // Show about information
+        function showAbout() {
+            Swal.fire({
+                title: 'About Skula AI',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>Version:</strong> 3.5.1</p>
+                        <p><strong>Developed by:</strong> Darrell Mucheri (Mr. Frank)</p>
+                        <p><strong>Specialization:</strong> AI School Assistant</p>
+                        <p><strong>Contact:</strong> <a href="https://wa.me/263719647303" target="_blank">+263 719 647 303</a></p>
+                        <p><strong>Email:</strong> <a href="mailto:darrelmucheri@gmail.com">darrelmucheri@gmail.com</a></p>
+                        <hr>
+                        <p>Skula AI is an advanced school assistant designed to help students with research, explanations, and academic support across various subjects.</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'OK',
+                width: '600px'
+            });
+            dropdownMenu.classList.remove('active');
+        }
+
+        // Toggle dark/light theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            // Update theme icon
+            const themeIcon = themeToggleBtn.querySelector('i');
+            themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Initialize the chat when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initChat);
+    </script>
+</body>
+</html>
